@@ -1,18 +1,121 @@
 import React, { Component } from "react";
-import { Text, View, StyleSheet } from "react-native";
-//import Icon from "react-native-vector-icons/Ionicons";
+import { Text, View, StyleSheet, StatusBar } from "react-native";
+import Icon from "react-native-vector-icons/Ionicons";
+import { fetchWeather } from "../utils/weatherApi";
+import Highlighter from "react-native-highlight-words";
 
+const IconNames = {
+  Clear: "md-sunny",
+  Rain: "md-rainy",
+  ThunderStorm: "md-thunderstorm",
+  Clouds: "md-cloudy",
+  Snow: "md-snow",
+  Drizzle: "md-umbrella",
+  Fog: "md-cloudy-night"
+};
+
+const phrases = {
+  Clear: {
+    title: "Beauty of the Clear Sun",
+    subTitle: "Rock that Shit!",
+    highlight:"Clear",
+    color:"#E32500",
+    backgroud:"#FFD017"
+  },
+  Rain: {
+    title: "Rain rain go away",
+    subtitle: "Stay inside and code all day",
+    highlight:"away",
+    color:"#004A96",
+    backgroud:"#2F343A"
+  },
+  ThunderStorm: {
+    title: "Ohhh....It's ThunderStorm",
+    subTitle: "Unplug those devices",
+    highlight:"ThunderStorm",
+    color:"#FBFF46",
+    backgroud:"#020202"
+  },
+  Clouds: {
+    title: "Cloud storage limit reached",
+    subtitle: "Oh..Should i go Out??",
+    highlight:"limit",
+    color:"#0044FF",
+    backgroud:"#939393"
+  },
+  Snow: {
+    title: "Heart Starts Freezing",
+    subtitle: "Old Monk in my Mind!",
+    highlight:"Freezing",
+    color:"#021D4C",
+    backgroud:"#15A678"
+  },
+  Drizzle: {
+    title: "Meh....Don't Ask",
+    subtitle: "What did I just Say??",
+    highlight:"Don't",
+    color:"#B3F6E4",
+    backgroud:"#1FBB68"
+  },
+  Fog: {
+    title: "Hey...too Foggy, I can't see you",
+    subtitle: "Where are you ??",
+    highlight:"Foggy",
+    color:"#0044FF",
+    backgroud:"#939393"
+
+  }
+};
 export default class AwesomeApp extends Component {
+  componentWillMount() {
+    this.state = {
+      temp: 0,
+      weather: "Clouds"
+    };
+  }
+
+  componentDidMount() {
+    this.getCurrentLocation();
+  }
+
+  getCurrentLocation() {
+    navigator.geolocation.getCurrentPosition(
+      posData =>
+        fetchWeather(posData.coords.latitude, posData.coords.longitude).then(
+          res =>
+            this.setState({
+              temp: res.temp,
+              weather: res.weather
+            })
+        ),
+      error => alert(error),
+      { timeout: 1000 }
+    );
+  }
+
   render() {
     return (
       <View style={Styles.container}>
+        <StatusBar hidden={true} />
         <View style={Styles.header}>
-        {/* <Icon name={'ios-sunny'}/> */}
-          <Text style={Styles.temp}>24</Text>
+          {console.log(this.state.weather)}
+          <Icon
+            name={IconNames[this.state.weather]}
+            size={80}
+            color={"white"}
+          />
+          <Text style={Styles.temp}>{this.state.temp}</Text>
         </View>
         <View style={Styles.body}>
-          <Text style={Styles.title}>Awesome Weather App</Text>
-          <Text style={Styles.subTitle}>Let's Make it Rain</Text>
+          <Highlighter
+            style={Styles.title}
+            highlightStyle={{ color: "red" }}
+            searchWords={[phrases[this.state.weather].highlight]}
+            textToHighlight={phrases[this.state.weather].title}
+          />
+          <Text style={Styles.subTitle}>
+            {phrases[this.state.weather].subtitle}
+          </Text>
         </View>
       </View>
     );
@@ -22,13 +125,13 @@ export default class AwesomeApp extends Component {
 const Styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor:"#FFD017"
+    backgroundColor: "#FFD017"
   },
   header: {
-      flexDirection:"row",
+    flexDirection: "row",
     flex: 1,
-    justifyContent:"space-around",
-    //backgroundColor: "blue",   
+    justifyContent: "space-around",
+    //backgroundColor: "blue",
     alignItems: "center"
   },
   body: {
@@ -36,27 +139,25 @@ const Styles = StyleSheet.create({
     //backgroundColor: "red",
     justifyContent: "flex-end",
     alignItems: "flex-start",
-    margin:10
+    margin: 10
   },
 
-  temp:{
-      fontFamily:"HelveticaNeue-Bold",
-      fontSize:45,
-      color:"#ffffff"
+  temp: {
+    fontFamily: "HelveticaNeue-Bold",
+    fontSize: 45,
+    color: "#ffffff"
   },
 
-  title:{
-    fontFamily:"HelveticaNeue-Bold",
-    fontSize:70,
-    color:"#ffffff",
-    marginBottom:5
-},
+  title: {
+    fontFamily: "HelveticaNeue-Bold",
+    fontSize: 70,
+    color: "#ffffff",
+    marginBottom: 5
+  },
 
-subTitle:{
-    fontFamily:"HelveticaNeue-Bold",
-    fontSize:16,
-    color:"#ffffff"
-},
-
-
+  subTitle: {
+    fontFamily: "HelveticaNeue-Bold",
+    fontSize: 16,
+    color: "#ffffff"
+  }
 });
