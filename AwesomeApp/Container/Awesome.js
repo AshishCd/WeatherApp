@@ -1,84 +1,94 @@
 import React, { Component } from "react";
-import { Text, View, StyleSheet, StatusBar } from "react-native";
+import { Text, View, StyleSheet, StatusBar, Image } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import { fetchWeather } from "../utils/weatherApi";
 import Highlighter from "react-native-highlight-words";
 
 const IconNames = {
-  Default:"md-time",
+  Default: "md-time",
   Clear: "md-sunny",
   Rain: "md-rainy",
   ThunderStorm: "md-thunderstorm",
   Clouds: "md-cloudy",
   Snow: "md-snow",
   Drizzle: "md-umbrella",
-  Fog: "md-cloudy-night"
+  Fog: "md-cloud",
+  Smoke: "md-partly-sunny"
 };
 
 const phrases = {
-  Default:{
-    title:"Fetching Recent Location",
-    subTitle:"Be patient, you're ",
-    highlight:"Location",
-    color:"#636363",
-    backgroud:"#9C9C9C"
+  Default: {
+    title: "Fetching Recent Location",
+    subTitle: "Be patient, Something good is about to happen ",
+    highlight: "Location",
+    color: "#636363",
+    background: "#9C9C9C"
   },
   Clear: {
     title: "Beauty of the Clear Sun",
     subTitle: "Rock that Shit!",
-    highlight:"Clear",
-    color:"#E32500",
-    backgroud:"#FFD017"
+    highlight: "Clear",
+    color: "#E32500",
+    background: "#FFD017"
   },
   Rain: {
     title: "Rain rain go away",
     subtitle: "Stay inside and code all day",
-    highlight:"away",
-    color:"#004A96",
-    backgroud:"#2F343A"
+    highlight: "away",
+    color: "#004A96",
+    background: "#2F343A"
   },
   ThunderStorm: {
     title: "Ohhh....It's ThunderStorm",
     subTitle: "Unplug those devices",
-    highlight:"ThunderStorm",
-    color:"#FBFF46",
-    backgroud:"#020202"
+    highlight: "ThunderStorm",
+    color: "#FBFF46",
+    background: "#020202"
   },
   Clouds: {
     title: "Cloud storage limit reached",
     subtitle: "Oh..Should i go Out??",
-    highlight:"limit",
-    color:"#0044FF",
-    backgroud:"#939393"
+    highlight: "limit",
+    color: "#0044FF",
+    background: "#939393"
   },
   Snow: {
     title: "Heart Starts Freezing",
     subtitle: "Old Monk in my Mind!",
-    highlight:"Freezing",
-    color:"#021D4C",
-    backgroud:"#15A678"
+    highlight: "Freezing",
+    color: "#021D4C",
+    background: "#15A678"
   },
   Drizzle: {
     title: "Meh....Don't Ask",
     subtitle: "What did I just Say??",
-    highlight:"Don't",
-    color:"#B3F6E4",
-    backgroud:"#1FBB68"
+    highlight: "Don't",
+    color: "#B3F6E4",
+    background: "#1FBB68"
   },
   Fog: {
     title: "Hey...too Foggy, I can't see you",
     subtitle: "Where are you ??",
-    highlight:"Foggy",
-    color:"#0044FF",
-    backgroud:"#939393"
-
+    highlight: "Foggy",
+    color: "#0044FF",
+    background: "#939393"
+  },
+  Smoke: {
+    title: "Too Much Smoke Here...",
+    subtitle: "Time to leave this city",
+    highlight: "Smoke",
+    color: "#FFFF00",
+    background: "#939393"
   }
 };
 export default class AwesomeApp extends Component {
   componentWillMount() {
     this.state = {
       temp: 0,
-      weather: "Default"
+      weather: "Default",
+      location: "Mumbai",
+      visibility: "3200",
+      icon:""
     };
   }
 
@@ -92,8 +102,11 @@ export default class AwesomeApp extends Component {
         fetchWeather(posData.coords.latitude, posData.coords.longitude).then(
           res =>
             this.setState({
-              temp: Math.round(res.temp),              
-              weather: res.weather
+              temp: Math.round(res.temp),
+              weather: res.weather,
+              location: res.location,
+              visibility: res.visibility,
+              icon: res.icon
             })
         ),
       error => alert(error),
@@ -102,27 +115,42 @@ export default class AwesomeApp extends Component {
   }
 
   render() {
+    console.log(this.state);
+    const weatherType = this.state.weather;
+    // // const ifAvail =  phrases.filter(type => type == 'Smoke');
+    // console.log(ifAvail)
     return (
-      <View style={[Styles.container,{backgroundColor:phrases[this.state.weather].backgroud}]}>
+      <View
+        style={[
+          Styles.container,
+          { backgroundColor: phrases[weatherType].background }
+        ]}
+      >
         <StatusBar hidden={true} />
         <View style={Styles.header}>
-          {console.log(this.state.temp)}
-          <Icon
+          {/* <Icon
             name={IconNames[this.state.weather]}
             size={80}
             color={"white"}
-          />
-          <Text style={Styles.temp}>{this.state.temp}°</Text>
+          /> */}
+          <Image style={{width: 60, height: 60}} source={{uri:`http://openweathermap.org/img/w/${this.state.icon}.png`}} />
+          <View>
+            <Text style={Styles.temp}>{this.state.temp}°</Text>
+            <Text style={Styles.cityOther}>City: {this.state.location}</Text>
+            <Text style={Styles.cityOther}>
+              Visibility: {this.state.visibility}
+            </Text>
+          </View>
         </View>
         <View style={Styles.body}>
           <Highlighter
             style={Styles.title}
-            highlightStyle={{color:phrases[this.state.weather].color}}
+            highlightStyle={{ color: phrases[this.state.weather].color }}
             searchWords={[phrases[this.state.weather].highlight]}
             textToHighlight={phrases[this.state.weather].title}
           />
           <Text style={Styles.subTitle}>
-            {phrases[this.state.weather].subTitle}
+            {phrases[this.state.weather].subtitle}
           </Text>
         </View>
       </View>
@@ -167,5 +195,10 @@ const Styles = StyleSheet.create({
     fontFamily: "HelveticaNeue-Bold",
     fontSize: 16,
     color: "#ffffff"
+  },
+  cityOther: {
+    fontFamily: "HelveticaNeue-Bold",
+    color: "#ffffff",
+    fontSize: 12
   }
 });
