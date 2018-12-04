@@ -5,6 +5,7 @@ import { fetchWeather } from "../utils/weatherApi";
 import Highlighter from "react-native-highlight-words";
 
 const IconNames = {
+  Default:"md-time",
   Clear: "md-sunny",
   Rain: "md-rainy",
   ThunderStorm: "md-thunderstorm",
@@ -15,6 +16,13 @@ const IconNames = {
 };
 
 const phrases = {
+  Default:{
+    title:"Fetching Recent Location",
+    subTitle:"Be patient, you're ",
+    highlight:"Location",
+    color:"#636363",
+    backgroud:"#9C9C9C"
+  },
   Clear: {
     title: "Beauty of the Clear Sun",
     subTitle: "Rock that Shit!",
@@ -70,7 +78,7 @@ export default class AwesomeApp extends Component {
   componentWillMount() {
     this.state = {
       temp: 0,
-      weather: "Clouds"
+      weather: "Default"
     };
   }
 
@@ -84,7 +92,7 @@ export default class AwesomeApp extends Component {
         fetchWeather(posData.coords.latitude, posData.coords.longitude).then(
           res =>
             this.setState({
-              temp: res.temp,
+              temp: Math.round(res.temp),              
               weather: res.weather
             })
         ),
@@ -95,26 +103,26 @@ export default class AwesomeApp extends Component {
 
   render() {
     return (
-      <View style={Styles.container}>
+      <View style={[Styles.container,{backgroundColor:phrases[this.state.weather].backgroud}]}>
         <StatusBar hidden={true} />
         <View style={Styles.header}>
-          {console.log(this.state.weather)}
+          {console.log(this.state.temp)}
           <Icon
             name={IconNames[this.state.weather]}
             size={80}
             color={"white"}
           />
-          <Text style={Styles.temp}>{this.state.temp}</Text>
+          <Text style={Styles.temp}>{this.state.temp}°</Text>
         </View>
         <View style={Styles.body}>
           <Highlighter
             style={Styles.title}
-            highlightStyle={{ color: "red" }}
+            highlightStyle={{color:phrases[this.state.weather].color}}
             searchWords={[phrases[this.state.weather].highlight]}
             textToHighlight={phrases[this.state.weather].title}
           />
           <Text style={Styles.subTitle}>
-            {phrases[this.state.weather].subtitle}
+            {phrases[this.state.weather].subTitle}
           </Text>
         </View>
       </View>
