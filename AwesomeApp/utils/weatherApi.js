@@ -8,6 +8,13 @@ export const fetchWeather = (lat, lon) => {
     .then(res => res.json())
     .then(json => ({
       temp: json.main.temp,
-      weather: json.weather[0].main
-    }));
+      weather: json.weather[0].main,
+      location:json.name,
+      visibility : json.visibility,
+      icon:json.weather[0].icon
+    }))
+    .catch(function(error) {
+      console.log('There has been a problem with your fetch operation: ' + error);      
+        throw error;
+      });
 };
