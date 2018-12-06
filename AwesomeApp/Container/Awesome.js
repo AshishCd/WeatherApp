@@ -3,6 +3,7 @@ import { Text, View, StyleSheet, StatusBar, Image } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import { fetchWeather } from "../utils/weatherApi";
 import Highlighter from "react-native-highlight-words";
+import moment from "moment";
 
 const IconNames = {
   Default: "md-time",
@@ -12,8 +13,7 @@ const IconNames = {
   Clouds: "md-cloudy",
   Snow: "md-snow",
   Drizzle: "md-umbrella",
-  Fog: "md-cloud",
-  Smoke: "md-partly-sunny"
+  Atmosphere: "md-cloud"
 };
 
 const phrases = {
@@ -66,14 +66,8 @@ const phrases = {
     color: "#B3F6E4",
     background: "#1FBB68"
   },
-  Fog: {
-    title: "Hey...too Foggy, I can't see you",
-    subtitle: "Where are you ??",
-    highlight: "Foggy",
-    color: "#0044FF",
-    background: "#939393"
-  },
-  Smoke: {
+
+  Atmosphere: {
     title: "Too Much Smoke Here...",
     subtitle: "Time to leave this city",
     highlight: "Smoke",
@@ -88,7 +82,12 @@ export default class AwesomeApp extends Component {
       weather: "Default",
       location: "Mumbai",
       visibility: "3200",
-      icon:""
+      icon: "",
+      pressure:"",
+      wind:"",
+      sunrise:"",
+      sunset:"",
+      id:"300"
     };
   }
 
@@ -106,7 +105,12 @@ export default class AwesomeApp extends Component {
               weather: res.weather,
               location: res.location,
               visibility: res.visibility,
-              icon: res.icon
+              icon: res.icon,
+              pressure: res.pressure,
+              wind: res.wind,
+              sunrise: res.sunrise,
+              sunset: res.sunset,
+              id:res.id
             })
         ),
       error => alert(error),
@@ -114,11 +118,44 @@ export default class AwesomeApp extends Component {
     );
   }
 
-  render() {
-    console.log(this.state);
-    const weatherType = this.state.weather;
-    // // const ifAvail =  phrases.filter(type => type == 'Smoke');
-    // console.log(ifAvail)
+  sunRiseFormatter = (time) => {
+    let ssTime = time;
+    let formatTime = new Date(ssTime * 1000);
+    console.log(formatTime);
+    return moment(formatTime).calendar();
+  }
+
+  formatUIFunc = (id) =>{
+    if(id >= 200 && id <= 232) {
+      return "Thunderstorm";
+    }
+    else if(id >= 300 && id <= 321) {
+      return "Drizzle";
+    }
+    else if(id >= 500 && id <= 531) {
+      return "Rain";
+    }
+    else if(id >= 600 && id <= 622) {
+      return "Snow";
+    }
+    else if(id >= 701 && id <= 781) {
+      return "Atmosphere";
+    }
+    else if(id = 800) {
+      return "Clear";
+    }
+    else if(id >= 801 && id <= 804) {
+      return "Clouds";
+    }
+    else {
+      return "Default"
+    }
+  }
+
+  render() {    
+    const weatherType = this.formatUIFunc(this.state.id);   
+    console.log(weatherType);
+    const {pressure, wind, sunrise, sunset} = this.state;
     return (
       <View
         style={[
@@ -128,12 +165,8 @@ export default class AwesomeApp extends Component {
       >
         <StatusBar hidden={true} />
         <View style={Styles.header}>
-          {/* <Icon
-            name={IconNames[this.state.weather]}
-            size={80}
-            color={"white"}
-          /> */}
-          <Image style={{width: 60, height: 60}} source={{uri:`http://openweathermap.org/img/w/${this.state.icon}.png`}} />
+          <Icon name={IconNames[weatherType]} size={80} color={"white"} />
+          {/* <Image style={{width: 60, height: 60}} source={{uri:`http://openweathermap.org/img/w/${this.state.icon}.png`}} /> */}
           <View>
             <Text style={Styles.temp}>{this.state.temp}°</Text>
             <Text style={Styles.cityOther}>City: {this.state.location}</Text>
@@ -142,16 +175,37 @@ export default class AwesomeApp extends Component {
             </Text>
           </View>
         </View>
+        <View style={Styles.detailsWrap}>
+          <View style={Styles.detailsView}>
+            <View>
+              <Text>Pressure</Text>
+              <Text>{pressure}</Text>
+            </View>
+            <View>
+              <Text>Wind</Text>
+              <Text>{wind}</Text>
+            </View>
+          </View>
+
+          <View style={Styles.detailsView}>
+            <View>
+              <Text>SunRise</Text>
+              <Text>{this.sunRiseFormatter(sunrise)}</Text>
+            </View>
+            <View>
+              <Text>SunSet</Text>
+              <Text>{this.sunRiseFormatter(sunset)}</Text>
+            </View>
+          </View>
+        </View>
         <View style={Styles.body}>
           <Highlighter
             style={Styles.title}
-            highlightStyle={{ color: phrases[this.state.weather].color }}
-            searchWords={[phrases[this.state.weather].highlight]}
-            textToHighlight={phrases[this.state.weather].title}
+            highlightStyle={{ color: phrases[weatherType].color }}
+            searchWords={[phrases[weatherType].highlight]}
+            textToHighlight={phrases[weatherType].title}
           />
-          <Text style={Styles.subTitle}>
-            {phrases[this.state.weather].subtitle}
-          </Text>
+          <Text style={Styles.subTitle}>{phrases[weatherType].subtitle}</Text>
         </View>
       </View>
     );
@@ -165,14 +219,12 @@ const Styles = StyleSheet.create({
   },
   header: {
     flexDirection: "row",
-    flex: 1,
+    flex: 2,
     justifyContent: "space-around",
-    //backgroundColor: "blue",
     alignItems: "center"
   },
   body: {
-    flex: 5,
-    //backgroundColor: "red",
+    flex: 4,
     justifyContent: "flex-end",
     alignItems: "flex-start",
     margin: 10
@@ -200,5 +252,20 @@ const Styles = StyleSheet.create({
     fontFamily: "HelveticaNeue-Bold",
     color: "#ffffff",
     fontSize: 12
+  },
+
+  detailsView: {
+    flexDirection: "row",
+    backgroundColor: "rgba(255,255,255,0.2)",
+    padding: 10,
+    borderRadius: 5,
+    minHeight: 60,
+    alignItems: "center",
+    justifyContent: "space-around"
+  },
+
+  detailsWrap: {
+    justifyContent: "center",
+    padding: 10
   }
 });
