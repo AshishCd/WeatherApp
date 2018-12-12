@@ -76,21 +76,23 @@ const phrases = {
   }
 };
 export default class AwesomeApp extends Component {
-  componentWillMount() {
+  constructor(props){
+    super(props);
     this.state = {
       temp: 0,
       weather: "Default",
       location: "Mumbai",
       visibility: "3200",
       icon: "",
-      pressure:"",
-      wind:"",
-      sunrise:"",
-      sunset:"",
-      id:"300"
+      pressure: "",
+      wind: "",
+      sunrise: "",
+      sunset: "",
+      id: "300"
     };
-  }
 
+  }
+  
   componentDidMount() {
     this.getCurrentLocation();
   }
@@ -110,7 +112,7 @@ export default class AwesomeApp extends Component {
               wind: res.wind,
               sunrise: res.sunrise,
               sunset: res.sunset,
-              id:res.id
+              id: res.id
             })
         ),
       error => alert(error),
@@ -118,44 +120,37 @@ export default class AwesomeApp extends Component {
     );
   }
 
-  sunRiseFormatter = (time) => {
+  sunRiseFormatter = time => {
     let ssTime = time;
     let formatTime = new Date(ssTime * 1000);
     console.log(formatTime);
     return moment(formatTime).calendar();
-  }
+  };
 
-  formatUIFunc = (id) =>{
-    if(id >= 200 && id <= 232) {
+  formatUIFunc = id => {
+    if (id >= 200 && id <= 232) {
       return "Thunderstorm";
-    }
-    else if(id >= 300 && id <= 321) {
+    } else if (id >= 300 && id <= 321) {
       return "Drizzle";
-    }
-    else if(id >= 500 && id <= 531) {
+    } else if (id >= 500 && id <= 531) {
       return "Rain";
-    }
-    else if(id >= 600 && id <= 622) {
+    } else if (id >= 600 && id <= 622) {
       return "Snow";
-    }
-    else if(id >= 701 && id <= 781) {
+    } else if (id >= 701 && id <= 781) {
       return "Atmosphere";
-    }
-    else if(id = 800) {
+    } else if ((id = 800)) {
       return "Clear";
-    }
-    else if(id >= 801 && id <= 804) {
+    } else if (id >= 801 && id <= 804) {
       return "Clouds";
+    } else {
+      return "Default";
     }
-    else {
-      return "Default"
-    }
-  }
+  };
 
-  render() {    
-    const weatherType = this.formatUIFunc(this.state.id);   
+  render() {
+    const weatherType = this.formatUIFunc(this.state.id);
     console.log(weatherType);
-    const {pressure, wind, sunrise, sunset} = this.state;
+    const { pressure, wind, sunrise, sunset } = this.state;
     return (
       <View
         style={[
@@ -166,9 +161,8 @@ export default class AwesomeApp extends Component {
         <StatusBar hidden={true} />
         <View style={Styles.header}>
           <Icon name={IconNames[weatherType]} size={80} color={"white"} />
-          {/* <Image style={{width: 60, height: 60}} source={{uri:`http://openweathermap.org/img/w/${this.state.icon}.png`}} /> */}
           <View>
-            <Text style={Styles.temp}>{this.state.temp}°</Text>
+            <Text style={Styles.temp}>{this.state.temp}°C</Text>
             <Text style={Styles.cityOther}>City: {this.state.location}</Text>
             <Text style={Styles.cityOther}>
               Visibility: {this.state.visibility}
@@ -177,24 +171,38 @@ export default class AwesomeApp extends Component {
         </View>
         <View style={Styles.detailsWrap}>
           <View style={Styles.detailsView}>
-            <View>
-              <Text>Pressure</Text>
-              <Text>{pressure}</Text>
+            <View style={Styles.columnView}>
+              <View>
+                <Text style={Styles.detailsText}>Pressure</Text>
+                <Text style={Styles.detailsText}>{pressure} mb</Text>
+              </View>
+              <View>
+              <Image source={require("./assets/Images/pressure.png")}/>
+              </View>
             </View>
-            <View>
-              <Text>Wind</Text>
-              <Text>{wind}</Text>
+            <View style={Styles.columnView}>
+              <View>
+                <Text style={Styles.detailsText}>Wind</Text>
+                <Text style={Styles.detailsText}>{wind} km/h</Text>
+              </View>
+              <View>
+                <Image source={require("./assets/Images/wind.png")}/>
+              </View>
             </View>
           </View>
 
           <View style={Styles.detailsView}>
             <View>
-              <Text>SunRise</Text>
-              <Text>{this.sunRiseFormatter(sunrise)}</Text>
+              <Text style={Styles.detailsText}>SunRise</Text>
+              <Text style={Styles.detailsText}>
+                {this.sunRiseFormatter(sunrise)}
+              </Text>
             </View>
             <View>
-              <Text>SunSet</Text>
-              <Text>{this.sunRiseFormatter(sunset)}</Text>
+              <Text style={Styles.detailsText}>SunSet</Text>
+              <Text style={Styles.detailsText}>
+                {this.sunRiseFormatter(sunset)}
+              </Text>
             </View>
           </View>
         </View>
@@ -261,11 +269,23 @@ const Styles = StyleSheet.create({
     borderRadius: 5,
     minHeight: 60,
     alignItems: "center",
-    justifyContent: "space-around"
+    justifyContent: "space-around",
+    borderBottomWidth: 1,
+    borderBottomColor: "#ffffff",
   },
 
   detailsWrap: {
     justifyContent: "center",
     padding: 10
+  },
+  detailsText: {
+    color: "#ffffff"
+  },
+
+  columnView: {
+    flexDirection: "row",
+    width: "50%",
+    justifyContent: "space-evenly",
+    alignItems: "center"
   }
 });
