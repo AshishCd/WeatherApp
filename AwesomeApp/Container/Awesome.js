@@ -4,6 +4,7 @@ import Icon from "react-native-vector-icons/Ionicons";
 import { fetchWeather } from "../utils/weatherApi";
 import Highlighter from "react-native-highlight-words";
 import moment from "moment";
+import {connect} from "react-redux";
 
 const IconNames = {
   Default: "md-time",
@@ -75,8 +76,8 @@ const phrases = {
     background: "#939393"
   }
 };
-export default class AwesomeApp extends Component {
-  constructor(props){
+class AwesomeApp extends Component {
+  constructor(props) {
     super(props);
     this.state = {
       temp: 0,
@@ -90,9 +91,8 @@ export default class AwesomeApp extends Component {
       sunset: "",
       id: "300"
     };
-
   }
-  
+
   componentDidMount() {
     this.getCurrentLocation();
   }
@@ -101,19 +101,8 @@ export default class AwesomeApp extends Component {
     navigator.geolocation.getCurrentPosition(
       posData =>
         fetchWeather(posData.coords.latitude, posData.coords.longitude).then(
-          res =>
-            this.setState({
-              temp: Math.round(res.temp),
-              weather: res.weather,
-              location: res.location,
-              visibility: res.visibility,
-              icon: res.icon,
-              pressure: res.pressure,
-              wind: res.wind,
-              sunrise: res.sunrise,
-              sunset: res.sunset,
-              id: res.id
-            })
+          res =>           
+            this.props.getWeather(res)
         ),
       error => alert(error),
       { timeout: 1000 }
@@ -148,9 +137,9 @@ export default class AwesomeApp extends Component {
   };
 
   render() {
-    const weatherType = this.formatUIFunc(this.state.id);
-    console.log(weatherType);
-    const { pressure, wind, sunrise, sunset } = this.state;
+    const weatherType = this.formatUIFunc(this.props.id);
+    console.log("id",weatherType, this.props);
+    const { pressure, wind, sunrise, sunset } = this.props;
     return (
       <View
         style={[
@@ -162,10 +151,10 @@ export default class AwesomeApp extends Component {
         <View style={Styles.header}>
           <Icon name={IconNames[weatherType]} size={80} color={"white"} />
           <View>
-            <Text style={Styles.temp}>{this.state.temp}°C</Text>
-            <Text style={Styles.cityOther}>City: {this.state.location}</Text>
+            <Text style={Styles.temp}>{this.props.temp}°C</Text>
+            <Text style={Styles.cityOther}>City: {this.props.location}</Text>
             <Text style={Styles.cityOther}>
-              Visibility: {this.state.visibility}
+              Visibility: {this.props.visibility}
             </Text>
           </View>
         </View>
@@ -177,7 +166,7 @@ export default class AwesomeApp extends Component {
                 <Text style={Styles.detailsText}>{pressure} mb</Text>
               </View>
               <View>
-              <Image source={require("./assets/Images/pressure.png")}/>
+                <Image source={require("./assets/Images/pressure.png")} />
               </View>
             </View>
             <View style={Styles.columnView}>
@@ -186,7 +175,7 @@ export default class AwesomeApp extends Component {
                 <Text style={Styles.detailsText}>{wind} km/h</Text>
               </View>
               <View>
-                <Image source={require("./assets/Images/wind.png")}/>
+                <Image source={require("./assets/Images/wind.png")} />
               </View>
             </View>
           </View>
@@ -271,7 +260,7 @@ const Styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-around",
     borderBottomWidth: 1,
-    borderBottomColor: "#ffffff",
+    borderBottomColor: "#ffffff"
   },
 
   detailsWrap: {
@@ -289,3 +278,30 @@ const Styles = StyleSheet.create({
     alignItems: "center"
   }
 });
+
+function mapStateToProps(state) {
+  console.log(state)
+  return {
+    temp: state.temp,
+    weather: state.weather,
+    location: state.location,
+    visibility: state.visibility,
+    icon: state.icon,
+    pressure: state.pressure,
+    wind: state.wind,
+    sunrise: state.sunrise,
+    sunset: state.sunset,
+    id: state.id
+  };
+}
+
+function mapDispatchToProps(dispatch){
+  return{
+    getWeather: (res) => dispatch({
+      type:"GET_WEATHER",
+      res:res
+    })
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(AwesomeApp);
