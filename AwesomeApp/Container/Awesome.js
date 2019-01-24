@@ -112,8 +112,7 @@ class AwesomeApp extends Component {
   sunRiseFormatter = time => {
     let ssTime = time;
     let formatTime = new Date(ssTime * 1000);
-    console.log(formatTime);
-    return moment(formatTime).calendar();
+      return moment(formatTime).calendar();
   };
 
   formatUIFunc = id => {
@@ -137,8 +136,7 @@ class AwesomeApp extends Component {
   };
 
   render() {
-    const weatherType = this.formatUIFunc(this.props.id);
-    console.log("id",weatherType, this.props);
+    const weatherType = this.formatUIFunc(this.props.id);   
     const { pressure, wind, sunrise, sunset } = this.props;
     return (
       <View
@@ -152,7 +150,7 @@ class AwesomeApp extends Component {
           <Icon name={IconNames[weatherType]} size={80} color={"white"} />
           <View>
             <Text style={Styles.temp}>{this.props.temp}°C</Text>
-            <Text style={Styles.cityOther}>City: {this.props.location}</Text>
+            <Text style={Styles.cityOther}>Location: {this.props.location}</Text>
             <Text style={Styles.cityOther}>
               Visibility: {this.props.visibility}
             </Text>
@@ -280,7 +278,7 @@ const Styles = StyleSheet.create({
 });
 
 function mapStateToProps(state) {
-  console.log(state)
+  
   return {
     temp: state.temp,
     weather: state.weather,
