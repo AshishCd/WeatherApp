@@ -6,8 +6,7 @@ export const fetchWeather = (lat, lon) => {
 
   return fetch(url)
     .then(res => res.json())
-    .then(json => (
-       //console.log(json)
+    .then(json => (     
       {
       temp: json.main.temp,
       weather: json.weather[0].main,
